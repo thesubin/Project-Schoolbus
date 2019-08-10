@@ -1,41 +1,65 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image, TextInput,Dimensions,TouchableOpacity,Button,Picker } from 'react-native';
-import { createStackNavigator, createAppContainer } from 'react-navigation';
+import { createStackNavigator, createAppContainer, NavigationActions, StackActions  } from 'react-navigation';
 import logo from './assets/logo.png'
+import bus from './assets/bus.png'
+import ParentScreen from './parent/homescreen'
 import Icon from "react-native-vector-icons/Ionicons"
-const { width:WIDTH } = Dimensions.get('window')
 
+const { width:WIDTH } = Dimensions.get('window')
 class HomeScreen extends React.Component {
-  state = {user: ''}
-  updateUser = (user) => {
-     this.setState({ user: user })
+  constructor(){
+		super();
+		this.state={
+			PickerValue:''
+			
+    }
+    
   }
+  
+  clickme=()=>{
+		var data = this.state.PickerValue;
+		if(data==""){
+			alert("Please Select a Option");
+		}else{
+       this.props.navigation.navigate('Details')
+    }
+  }
+
   render() {
     return (
       <View style={styles.container}>
-      
+      {/* <Image source={bus} style={styles.bus} />
+       */}
       <View style={styles.welcomeBox}><Text style={styles.welcomeText}> WELCOME TO</Text>
       <Text style={styles.welcomeText}> Kata छौ? </Text>
    
       </View> 
+      <Image source={bus} style={styles.bus} />
+      
       <View style={styles.inputContainer}>
            <Text style={styles.text1}> You are </Text>
    
       </View> 
-       
-      <View>
-      <Picker selectedValue = {this.state.user} onValueChange = {this.updateUser}>
-               <Picker.Item label = "Parent" value = "parent" />
-               <Picker.Item label = "Driver" value = "driver" />
-               <Picker.Item label = "Admin" value = "admin" />
-            </Picker>
-            <Text >{this.state.user}</Text>
-      </View>
+      <View style={styles.picker}>
+
+  <Picker
+		style={{width:"55%" ,position: 'absolute',borderWidth:1,borderColor:'black',alignItems: 'center',
+  }}
+		selectedValue={this.state.PickerValue}
+		onValueChange={(itemValue,itemIndex) => this.setState({PickerValue:itemValue})}
+		>
+		<Picker.Item label="Select a option" value=""/>
+		<Picker.Item label="PARENT" value="html" />
+		<Picker.Item label="DRIVER" value="html" />
+		<Picker.Item label="ADMIN" value="javascript"/>
+		</Picker> 
+     </View>
       <View style={styles.Buttonview}> 
-        <Button style={styles.Button}
-          title="Get Started"
-          onPress={() => this.props.navigation.navigate('Details')}
-        />
+         <TouchableOpacity style={styles.btnLogin} onPress={this.clickme}>
+        <Text style={styles.text}>Get Started</Text>
+  
+         </TouchableOpacity>
         </View>
       </View>
     );
@@ -94,8 +118,8 @@ class DetailsScreen extends React.Component  {
  }
 
  login= () =>{
-   alert('UNDER CONSTRUCTION',"WILL BE UP")
- }
+  this.props.navigation.navigate('Parent')
+}
 }
 
 
@@ -103,12 +127,32 @@ const RootStack = createStackNavigator(
   {
     Home: HomeScreen,
     Details: DetailsScreen,
-  },
+    Parent: ParentScreen,
+  },{
+    defaultNavigationOptions:{
+        header: null,
+    }
+    },
   {
     initialRouteName: 'Home',
   }
 );
-
+// resetStack = () => {
+//   this.props
+//     .navigation
+//     .dispatch(StackActions.reset({
+//       index: 0,
+//       key: null,
+//       actions: [
+//         NavigationActions.navigate({
+//           // routeName: 'Home',
+//           // routeName: 'Details',
+          
+//           routeName: 'Parent',
+//         }),
+//       ],
+//     }))
+//  }
 const AppContainer = createAppContainer(RootStack);
 
 export default class App extends React.Component {
@@ -135,6 +179,14 @@ const styles = StyleSheet.create({
   height: 230,
   borderRadius:50
   },
+  bus: {
+    top:115,
+    width :100,
+    height: 100,
+    borderRadius:50,
+    position:'absolute'  
+  },
+
   welcomeBox: { 
     backgroundColor: 'rgba(232,232,232,0.35)',
     borderRadius:25,
@@ -220,6 +272,13 @@ const styles = StyleSheet.create({
    Buttonview:{
   
     marginTop:15
-  }
+  },
+  picker: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop:25,
+      marginBottom:5,
+      marginHorizontal:20
+    }
 });
 
