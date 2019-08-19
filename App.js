@@ -1,11 +1,25 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image, TextInput,Dimensions,TouchableOpacity,Button,Picker } from 'react-native';
-import { createStackNavigator, createAppContainer, NavigationActions, StackActions  } from 'react-navigation';
+import { createStackNavigator, createSwitchNavigator, createAppContainer, NavigationActions, StackActions  } from 'react-navigation';
 import logo from './assets/logo.png'
 import bus from './assets/bus.png'
 import ParentScreen from './parent/homescreen'
-import Icon from "react-native-vector-icons/Ionicons"
+import AdminScreen from './admin/homescreen'
 
+import Icon from "react-native-vector-icons/Ionicons"
+import firebase from './firebase'
+
+// const firebaseConfig ={
+//   apiKey: "AIzaSyD2gA_Ff_qCBITSIJXSVKBz_4qFGAceDks",
+//   authDomain: "schoolbustracker-cb35a.firebaseapp.com",
+//   databaseURL: "https://schoolbustracker-cb35a.firebaseio.com",
+//   projectId: "schoolbustracker-cb35a",
+//   storageBucket: "",
+// };
+
+// firebase.initializeApp(firebaseConfig);
+
+var uid =''
 const { width:WIDTH } = Dimensions.get('window')
 class HomeScreen extends React.Component {
   constructor(){
@@ -22,6 +36,7 @@ class HomeScreen extends React.Component {
 		if(data==""){
 			alert("Please Select a Option");
 		}else{
+      uid= data
        this.props.navigation.navigate('Details')
     }
   }
@@ -50,9 +65,9 @@ class HomeScreen extends React.Component {
 		onValueChange={(itemValue,itemIndex) => this.setState({PickerValue:itemValue})}
 		>
 		<Picker.Item label="Select a option" value=""/>
-		<Picker.Item label="PARENT" value="html" />
-		<Picker.Item label="DRIVER" value="html" />
-		<Picker.Item label="ADMIN" value="javascript"/>
+		<Picker.Item label="PARENT" value="parent" />
+		<Picker.Item label="DRIVER" value="driver" />
+		<Picker.Item label="ADMIN" value="admin"/>
 		</Picker> 
      </View>
       <View style={styles.Buttonview}> 
@@ -65,16 +80,133 @@ class HomeScreen extends React.Component {
     );
   }
 }
+class SignupScreen extends React.Component  {
+  constructor(props){
+    super(props)
+    this.state=({
+      showPass: true,
+      press:false,
+      email:'',
+      password:''
+    })
+  }
+signUpUser=(email,password) => {
+try{
+  if(this.state.password.length<6){
+    alert("Please enter atleast 6 characters")
+    return;
+  } 
+  else{firebase.auth().createUserWithEmailAndPassword(email,password).then(() => alert("Resgisterd"))
+    
+  }
+}
+catch(error){
+console.log(error.toString())
+}
+
+}
+
+  
+ render(){
+    return (
+   
+      <View style={styles.container}>
+      <Image source={logo} style={styles.logo2} />
+      <Text style={styles.Text}> Kata छौ? </Text>
+   
+      <View style={styles.inputContainer}>  
+        <Icon name={"ios-person"} size={28} color={'rgba(0,0,0,0.7)'} style={styles.inputIcon} />
+         <TextInput style={styles.input} placeholder={"Parent Name"}
+         placeholderTextColor={'rgba(255,255,255,0.7)'}
+          underlineColorAndroid='transparent'
+          />
+      </View>
+      {/* <View style={styles.inputContainer}>  
+        <Icon name={"ios-person"} size={28} color={'rgba(0,0,0,0.7)'} style={styles.inputIcon} />
+         <TextInput style={styles.input} placeholder={"Email"}
+         placeholderTextColor={'rgba(255,255,255,0.7)'}
+          underlineColorAndroid='transparent'
+          />
+      </View> */}
+      <View style={styles.inputContainer}>  
+        <Icon name={"ios-person"} size={28} color={'rgba(0,0,0,0.7)'} style={styles.inputIcon} />
+         <TextInput style={styles.input} placeholder={"Student Id"}
+         placeholderTextColor={'rgba(255,255,255,0.7)'}
+          underlineColorAndroid='transparent'
+          />
+      </View>
+      <View style={styles.inputContainer}>  
+        <Icon name={"ios-person"} size={28} color={'rgba(0,0,0,0.7)'} style={styles.inputIcon} />
+         <TextInput style={styles.input} placeholder={"Contact"}
+         placeholderTextColor={'rgba(255,255,255,0.7)'}
+          underlineColorAndroid='transparent'
+          />
+      </View>
+      <View style={styles.inputContainer}>  
+        <Icon name={"ios-person"} size={28} color={'rgba(0,0,0,0.7)'} style={styles.inputIcon} />
+         <TextInput style={styles.input} placeholder={"Email"}
+         placeholderTextColor={'rgba(255,255,255,0.7)'}
+          underlineColorAndroid='transparent'
+          onChangeText={(email)=>this.setState({email})}
+          />
+      </View>
+      <View style={styles.inputContainer}>  
+        <Icon name={"ios-key"} size={28} color={'rgba(0,0,0,0.7)'} style={styles.inputIcon} />
+         <TextInput style={styles.input} placeholder={"Password"}
+         secureTextEntry={this.state.showPass}
+         placeholderTextColor={'rgba(255,255,255,0.7)'}
+          underlineColorAndroid='transparent'
+          onChangeText={(password)=>this.setState({password})}
+          
+         />
+   <TouchableOpacity style={styles.btnEye}>
+      <Icon name={"ios-eye"} size={26} color={'rgba(0,0,0,0.7)'} />
+    </TouchableOpacity>
+          
+   </View>
+   <TouchableOpacity style={styles.btnLogin} onPress={() => this.signUpUser(this.state.email,this.state.password)}>
+      <Text style={styles.text}>Sign Up </Text>
+
+       </TouchableOpacity>
+      <Text style={styles.text1}>Already have an account?  </Text>
+       <TouchableOpacity  onPress={this.sup}>
+      <Text style={styles.text2}>Sign in!</Text>
+
+       </TouchableOpacity>
+   
+   </View>   
+
+  );
+ }
+
+ sup= () =>{
+  this.props.navigation.navigate('Details')
+  // navigation.goBack(null)
+}
+}
+
 
 class DetailsScreen extends React.Component  {
-  constructor(){
-    super()
-    this.state={
+  constructor(props){
+    super(props)
+    this.state=({
       showPass: true,
-      press:false
-    }
-  }
+      press:false,
+      email:'',
+      password:''
 
+    })
+  }
+  loginUser=(email,password) => {
+    try{
+      firebase.auth().signInWithEmailAndPassword(email,password).then(this.login)
+    }
+    catch(error){
+    console.log(error.toString())
+    }
+        
+    }
+  
  render(){
     return (
    
@@ -87,6 +219,7 @@ class DetailsScreen extends React.Component  {
          <TextInput style={styles.input} placeholder={"Username"}
          placeholderTextColor={'rgba(255,255,255,0.7)'}
           underlineColorAndroid='transparent'
+          onChangeText={(email)=>this.setState({email})}
           />
       </View>
       <View style={styles.inputContainer}>  
@@ -95,19 +228,20 @@ class DetailsScreen extends React.Component  {
          secureTextEntry={this.state.showPass}
          placeholderTextColor={'rgba(255,255,255,0.7)'}
           underlineColorAndroid='transparent'
-          />
+          onChangeText={(password)=>this.setState({password})}
+         />
    <TouchableOpacity style={styles.btnEye}>
       <Icon name={"ios-eye"} size={26} color={'rgba(0,0,0,0.7)'} />
     </TouchableOpacity>
           
    </View>
-   <TouchableOpacity style={styles.btnLogin} onPress={this.login}>
+   <TouchableOpacity style={styles.btnLogin} onPress={() => this.loginUser(this.state.email,this.state.password)}>
       <Text style={styles.text}>Login </Text>
 
        </TouchableOpacity>
       <Text style={styles.text1}>or
        Register as a parent  </Text>
-       <TouchableOpacity  onPress={this.login}>
+       <TouchableOpacity  onPress={this.sgnup}>
       <Text style={styles.text2}>here!</Text>
 
        </TouchableOpacity>
@@ -118,16 +252,29 @@ class DetailsScreen extends React.Component  {
  }
 
  login= () =>{
+   if(uid=='parent'){
   this.props.navigation.navigate('Parent')
+   }
+   else if(uid=='admin'){
+    this.props.navigation.navigate('Admin')
+   }
+   else if(uid=='driver'){
+   alert("Under Construction")
+    
+   }
+}
+sgnup= () =>{
+  this.props.navigation.navigate('Signup')
 }
 }
 
 
-const RootStack = createStackNavigator(
+const Stacks = createStackNavigator(
   {
     Home: HomeScreen,
     Details: DetailsScreen,
-    Parent: ParentScreen,
+    Signup: SignupScreen,
+    
   },{
     defaultNavigationOptions:{
         header: null,
@@ -135,6 +282,17 @@ const RootStack = createStackNavigator(
     },
   {
     initialRouteName: 'Home',
+  }
+);
+const RootStack = createSwitchNavigator(
+  {
+    
+    Parent: ParentScreen,
+    Admin: AdminScreen,
+    Stack:Stacks
+  },
+  {
+    initialRouteName: 'Stack',
   }
 );
 // resetStack = () => {
@@ -179,6 +337,11 @@ const styles = StyleSheet.create({
   height: 230,
   borderRadius:50
   },
+  logo2: {
+    width :150,
+    height: 180,
+    borderRadius:50
+    },
   bus: {
     top:115,
     width :100,
