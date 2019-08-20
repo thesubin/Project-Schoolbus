@@ -5,6 +5,7 @@ import logo from './assets/logo.png'
 import bus from './assets/bus.png'
 import ParentScreen from './parent/homescreen'
 import AdminScreen from './admin/homescreen'
+import DriverScreen from './driver/homescreen'
 
 import Icon from "react-native-vector-icons/Ionicons"
 import firebase from './firebase'
@@ -259,7 +260,7 @@ class DetailsScreen extends React.Component  {
     this.props.navigation.navigate('Admin')
    }
    else if(uid=='driver'){
-   alert("Under Construction")
+    this.props.navigation.navigate('Driver')
     
    }
 }
@@ -289,6 +290,7 @@ const RootStack = createSwitchNavigator(
     
     Parent: ParentScreen,
     Admin: AdminScreen,
+    Driver: DriverScreen,
     Stack:Stacks
   },
   {
