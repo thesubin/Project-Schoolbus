@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { createStackNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
 // import Map from './location'
 import Notification from './Notification'
+import AddDriver from './addDriver'
 class HomeScreen extends React.Component {
   render() {
     return (
@@ -22,7 +23,7 @@ class SettingsScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Profile!</Text>
+      <AddDriver />
         {/* <Button
           title="Go to Home"
           onPress={() => this.props.navigation.navigate('Home')}
@@ -76,7 +77,7 @@ const SettingsStack = createStackNavigator({
 export default createAppContainer(createBottomTabNavigator(
   {
     Home: HomeStack ,
-    Profile: SettingsStack,
+    Driver: SettingsStack,
     Location:  DetailsScreen ,
   },
   
@@ -90,7 +91,7 @@ export default createAppContainer(createBottomTabNavigator(
         let iconName;
         if (routeName === 'Home') {
           iconName = `ios-information-circle`;
-        } else if (routeName === 'Profile') {
+        } else if (routeName === 'Driver') {
           iconName = `ios-options`;
         }else if (routeName === 'Location') {
             iconName = `ios-options`;
