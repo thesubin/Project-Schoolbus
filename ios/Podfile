@@ -28,6 +28,10 @@ target 'SchoolBusTracker' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
+  pod 'react-native-geolocation', :path => '../node_modules/@react-native-community/geolocation'
+
+  pod 'RCTRestart', :path => '../node_modules/react-native-restart'
+
   target 'SchoolBusTrackerTests' do
     inherit! :search_paths
     # Pods for testing

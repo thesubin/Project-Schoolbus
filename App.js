@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Image, TextInput,Dimensions,TouchableOpacity,Button,Picker } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput,Dimensions,TouchableOpacity,Button,Picker ,Div} from 'react-native';
 import { createStackNavigator, createSwitchNavigator, createAppContainer, NavigationActions, StackActions  } from 'react-navigation';
 import logo from './assets/logo.png'
 import bus from './assets/bus.png'
@@ -22,16 +22,64 @@ import firebase from './firebase'
 
 var uid =''
 const { width:WIDTH } = Dimensions.get('window')
+class CheckLogin extends React.Component{
+  constructor(){
+		super();
+		this.state={
+	   user: null,
+    }
+    this.authListener = this.authListener.bind(this);
+  }
+  componentDidMount() {
+    this.authListener();
+  }
+  authListener() {
+    firebase.auth().onAuthStateChanged((user) => {
+      console.log(user);
+      if (user) {
+        this.setState({ user });
+       // localStorage.setItem('user', user.uid);
+      } else {
+        this.setState({ user: null });
+        //localStorage.removeItem('user');
+      }
+    });
+  }
+  handlelogin= () =>{
+    var that=this;
+    
+        firebase.database().ref('uid').once('value', function (data) {
+       var newData=data.val();
+      
+    var who=newData;
+          
+        })  
+    if(localStorage.who==1){
+      
+   this.props.navigation.navigate('Parent')
+    }
+    else if(localStorage.who==2){
+        this.props.navigation.navigate('Admin')
+    }
+    else if(localStorage.who==3){
+     this.props.navigation.navigate('Driver')
+     
+    }
+  }
+  render() {
+    return (
+  
+  <View>{ (this.state.user)? (this.handlelogin) : (this.props.navigation.navigate('Home'))   }</View>
+    )}
+}
 class HomeScreen extends React.Component {
   constructor(){
 		super();
 		this.state={
-			PickerValue:''
-			
+			PickerValue:'',
+      user: null,
     }
-    
   }
-  
   clickme=()=>{
 		var data = this.state.PickerValue;
 		if(data==""){
@@ -44,8 +92,10 @@ class HomeScreen extends React.Component {
 
   render() {
     return (
+    
       <View style={styles.container}>
-      {/* <Image source={bus} style={styles.bus} />
+   
+       {/* <Image source={bus} style={styles.bus} />
        */}
       <View style={styles.welcomeBox}><Text style={styles.welcomeText}> WELCOME TO</Text>
       <Text style={styles.welcomeText}> Kata छौ? </Text>
@@ -88,16 +138,43 @@ class SignupScreen extends React.Component  {
       showPass: true,
       press:false,
       email:'',
-      password:''
+      password:'',
+      studentid:'',
+      contact:'',
+      name:''
     })
   }
-signUpUser=(email,password) => {
+signUpUser=(email,password,contact,studentid,name) => {
 try{
-  if(this.state.password.length<6){
-    alert("Please enter atleast 6 characters")
+  let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/ ;
+  let rr=/^[a-zA-Z]*$/;
+  if(this.state.password.length<6 || this.state.contact.length<9|| this.state.name==""|| rr.test(this.state.name)==false||rr.test(this.state.studentid)== false|| this.state.studentid==""|| reg.test(this.state.email) === false){
+    alert("Please enter valid Data")
     return;
   } 
-  else{firebase.auth().createUserWithEmailAndPassword(email,password).then(() => alert("Resgisterd"))
+ 
+  else{firebase.auth().createUserWithEmailAndPassword(email,password).then((user)=>{
+if(user){
+  var userId = firebase.auth().currentUser.uid;
+  firebase.database().ref('users/parent/'+ userId).set({ email:email, contact:contact,
+    studentid:studentid })
+  firebase.auth().currentUser.updateProfile({
+        displayName: name,
+       
+         // some photo url
+      })  
+    }
+  }).then(() => alert("Registerd")).catch(function(error) {
+    errorCode = error.code;
+    errorMessage = error.message;
+  if (errorCode === 'auth/email-already-in-use') {
+    console.log("Wrong password");
+    alert('Email Already in Use!');
+  } else {
+    console.log(error);
+   
+  }
+})
     
   }
 }
@@ -120,6 +197,7 @@ console.log(error.toString())
          <TextInput style={styles.input} placeholder={"Parent Name"}
          placeholderTextColor={'rgba(255,255,255,0.7)'}
           underlineColorAndroid='transparent'
+          onChangeText={(name)=>this.setState({name})}
           />
       </View>
       {/* <View style={styles.inputContainer}>  
@@ -131,9 +209,10 @@ console.log(error.toString())
       </View> */}
       <View style={styles.inputContainer}>  
         <Icon name={"ios-person"} size={28} color={'rgba(0,0,0,0.7)'} style={styles.inputIcon} />
-         <TextInput style={styles.input} placeholder={"Student Id"}
+         <TextInput style={styles.input} placeholder={"Student Name"}
          placeholderTextColor={'rgba(255,255,255,0.7)'}
           underlineColorAndroid='transparent'
+          onChangeText={(studentid)=>this.setState({studentid})}
           />
       </View>
       <View style={styles.inputContainer}>  
@@ -141,6 +220,8 @@ console.log(error.toString())
          <TextInput style={styles.input} placeholder={"Contact"}
          placeholderTextColor={'rgba(255,255,255,0.7)'}
           underlineColorAndroid='transparent'
+          onChangeText={(contact)=>this.setState({contact})}
+          keyboardType={'numeric'}
           />
       </View>
       <View style={styles.inputContainer}>  
@@ -165,7 +246,7 @@ console.log(error.toString())
     </TouchableOpacity>
           
    </View>
-   <TouchableOpacity style={styles.btnLogin} onPress={() => this.signUpUser(this.state.email,this.state.password)}>
+   <TouchableOpacity style={styles.btnLogin} onPress={() => this.signUpUser(this.state.email,this.state.password,this.state.contact,this.state.studentid,this.state.name)}>
       <Text style={styles.text}>Sign Up </Text>
 
        </TouchableOpacity>
@@ -200,8 +281,27 @@ class DetailsScreen extends React.Component  {
   }
   loginUser=(email,password) => {
     try{
-      firebase.auth().signInWithEmailAndPassword(email,password).then(this.login)
+      
+      let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/ ;
+    if(this.state.password.length<6 || reg.test(this.state.email) === false){
+      alert("Please enter a valid Email or Pasword More than 6 letters")
+      return;
+    } 
+   
+    else{
+      firebase.auth().signInWithEmailAndPassword(email,password).then(this.login).catch(function(error) {
+        errorCode = error.code;
+        errorMessage = error.message;
+      if (errorCode === 'auth/wrong-password') {
+        console.log("Wrong password");
+        alert('Wrong password.');
+      } else {
+        console.log(error)
+        
+      }
+    })
     }
+  }
     catch(error){
     console.log(error.toString())
     }
@@ -254,12 +354,15 @@ class DetailsScreen extends React.Component  {
 
  login= () =>{
    if(uid=='parent'){
+    firebase.database().ref('uid').set({ login:1 })
   this.props.navigation.navigate('Parent')
    }
    else if(uid=='admin'){
+    firebase.database().ref('uid').set({ login:2 })
     this.props.navigation.navigate('Admin')
    }
    else if(uid=='driver'){
+    firebase.database().ref('uid').set({ login:3 })
     this.props.navigation.navigate('Driver')
     
    }
@@ -271,7 +374,7 @@ sgnup= () =>{
 
 
 const Stacks = createStackNavigator(
-  {
+  { Check: CheckLogin,
     Home: HomeScreen,
     Details: DetailsScreen,
     Signup: SignupScreen,
@@ -282,7 +385,7 @@ const Stacks = createStackNavigator(
     }
     },
   {
-    initialRouteName: 'Home',
+    initialRouteName: 'Check',
   }
 );
 const RootStack = createSwitchNavigator(

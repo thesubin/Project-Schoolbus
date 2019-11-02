@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, Button, Text,Dimensions, View,TextInput,TouchableOpacity ,Image,FlatList} from 'react-native';
+import { StyleSheet, Text,Dimensions, View,TextInput,TouchableOpacity ,Image,FlatList} from 'react-native';
 import add from '../assets/add.png'
 
-import { List,ListItem, Icon, Left, Body, Right, Switch  } from 'native-base';
+import { List,ListItem, Icon, Left, Body, Right, Switch ,Button } from 'native-base';
 import firebase from '../firebase'
 
 // import * as firebase from 'firebase';
@@ -29,13 +29,15 @@ export default class Notification extends React.Component {
 
     this.state = {
       listViewData: data,
-      newContact: ""
+      newContact: "",
+      refresh:0,
+      date:0,
     };
   }
   componentDidMount() {
     
         var that = this
-    
+     
         firebase.database().ref('contacts').on('child_added', function (data) {
     
           var newData = [...that.state.listViewData]
@@ -45,15 +47,46 @@ export default class Notification extends React.Component {
         })
     
       } 
+
+      
       addRow(data) {
+        var that = this
         
+        var date = new Date().getDate();
+        var month = new Date().getMonth() + 1; //Current Month
+        var year = new Date().getFullYear(); //Current Year
+        var hours = new Date().getHours(); //Current Hours
+        var min = new Date().getMinutes(); //Current Minutes
+        that.setState({
+          //Setting the value of the date time
+          date:
+            date+ '/' + month + '/' + year + ' ' + hours + ':' + min ,
+        });
+        if(data==""){
+          alert("Please Enter Something")
+        }
+        else{
             var key = firebase.database().ref('contacts').push().key
-            firebase.database().ref('contacts').child(key).set({ name: data }).then(()=> alert("Successfully Added"))
-          }
-  render() {
+            firebase.database().ref('contacts').child(key).set({ name: data ,date:this.state.date }).then(()=> alert("Successfully Added"))
+          }}
+        
+          async deleteRow(data) {
+              await firebase.database().ref('contacts/' + data.key).set(null)
+              const filteredData = this.state.listViewData.filter(item => item.key !== data.key);
+              this.setState({ listViewData: filteredData });
+              refresh:1
+               
+            }
+
+
+                render() {
       return (
         <View style={styles.container}>
         <View style={styles.welcomeBox}>
+        {/* <Button
+          title="Logout"
+          onPress={() => this.logout}
+        /> */}
               <TextInput style={styles.welcomeText}
               placeholder=" Add Notification.." 
               onChangeText={(newContact) => this.setState({ newContact })}/>
@@ -70,15 +103,24 @@ export default class Notification extends React.Component {
           <View style={styles.container1}>
            
           <FlatList
-          enableEmptySection
-          data={this.state.listViewData}
-          renderItem={({ item }) => (
-            <ListItem>
-          <Text> {item.val().name}  </Text>
-          
-            </ListItem>
-            
-          )}
+         enableEmptySection
+         extraData={this.state.refresh}
+         data={this.state.listViewData}
+         renderItem={({ item }) => (
+           <ListItem>
+         <Text style={{fontSize:20}}> {item.val().name}  </Text>
+         <View style={{marginLeft:260,position:"absolute"}}><Button full danger onPress={() => this.deleteRow(item)}>
+                <Icon name="trash" />
+              </Button>
+              </View>
+              <View style={{marginLeft:0,top:3,position:"absolute"}}>
+              <Text style={{fontSize:9}}> {item.val().date}  </Text>
+              
+              </View>
+              
+           </ListItem>
+           
+         )}
           />
           
               </View>

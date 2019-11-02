@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, Button, Text,Dimensions, View,TextInput,TouchableOpacity ,Image,FlatList} from 'react-native';
+import { StyleSheet, Text,Dimensions, View,TextInput,TouchableOpacity ,Image,FlatList} from 'react-native';
 import add from '../assets/add.png'
 
-import { List,ListItem, Icon, Left, Body, Right, Switch  } from 'native-base';
+import { List,ListItem, Icon, Left, Body, Right, Switch,Button  } from 'native-base';
 import firebase from '../firebase'
 
 // import * as firebase from 'firebase';
@@ -29,9 +29,13 @@ export default class Notification extends React.Component {
 
     this.state = {
       listViewData: data,
-      newContact: ""
+      newContact: "",
+      refresh:0
     };
   }
+logout() {
+  firebase.auth().signOut();
+}
   componentDidMount() {
     
         var that = this
@@ -50,6 +54,17 @@ export default class Notification extends React.Component {
             var key = firebase.database().ref('contacts').push().key
             firebase.database().ref('contacts').child(key).set({ name: data }).then(()=> alert("Successfully Added"))
           }
+      
+          async deleteRow(data) {
+            var that = this
+                  await firebase.database().ref('contacts/' + data.key).set(null)
+                  firebase.database().ref('contacts').on('value', function (data) {
+                    var newData=data
+                  that.setState({ listViewData: newData,
+                  refresh: 1
+                  });
+                })
+                }
   render() {
       return (
         <View style={styles.container}>
@@ -70,15 +85,19 @@ export default class Notification extends React.Component {
           <View style={styles.container1}>
            
           <FlatList
-          enableEmptySection
-          data={this.state.listViewData}
-          renderItem={({ item }) => (
-            <ListItem>
-          <Text> {item.val().name}  </Text>
-          
-            </ListItem>
-            
-          )}
+         enableEmptySection
+         extraData={this.state.refresh}
+         data={this.state.listViewData}
+         renderItem={({ item }) => (
+           <ListItem>
+         <Text style={{fontSize:20}}> {item.val().name}  </Text>
+         <View style={{marginLeft:260,position:"absolute"}}><Button full danger onPress={() => this.deleteRow(item)}>
+                <Icon name="trash" />
+              </Button>
+              </View>
+           </ListItem>
+           
+         )}
           />
           
               </View>

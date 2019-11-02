@@ -1,8 +1,9 @@
 import React from 'react';
-import {StyleSheet, Button, Text,Dimensions, View,TextInput,TouchableOpacity ,Image,FlatList} from 'react-native';
+import {StyleSheet, Text,Dimensions, View,TextInput,TouchableOpacity ,Image,FlatList} from 'react-native';
 import firebase from '../firebase'
+
 const { width:WIDTH } = Dimensions.get('window')
-import { List,ListItem, Icon, Left, Body, Right, Switch  } from 'native-base';
+import { List,ListItem, Icon, Left, Body, Right, Switch,Button  } from 'native-base';
 var data = []
 
 export default class Notification extends React.Component {
@@ -11,7 +12,8 @@ export default class Notification extends React.Component {
 
     this.state = {
       listViewData: data,
-      newContact: ""
+      newContact: "",
+      refresh:0
     };
   }
   
@@ -27,7 +29,17 @@ export default class Notification extends React.Component {
           
         })
       }
-
+     async deleteRow(data) {
+      var that = this
+            await firebase.database().ref('contacts/' + data.key).set(null)
+            firebase.database().ref('contacts').on('value', function (data) {
+              var newData=data
+            that.setState({ listViewData: newData,
+            refresh: 1
+            });
+          })
+          }
+        
     render() {
       return (
         <View style={styles.container}>
@@ -42,14 +54,24 @@ export default class Notification extends React.Component {
           
          <FlatList
          enableEmptySection
+         extraData={this.state.refresh}
          data={this.state.listViewData}
          renderItem={({ item }) => (
            <ListItem>
-         <Text> {item.val().name}  </Text>
+         <Text style={{fontSize:20}}> {item.val().name}  </Text>
+         {/* <View style={{marginLeft:260,position:"absolute"}}><Button full danger onPress={() => this.deleteRow(item)}>
+                <Icon name="trash" />
+              </Button>
+              </View> */}
+                <View style={{marginLeft:0,top:3,position:"absolute"}}>
+              <Text style={{fontSize:9}}> {item.val().date}  </Text>
+              
+              </View>
+              
            </ListItem>
            
          )}
-         />
+          />
          
              </View>
         </View>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'
 import { createStackNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
-// import Map from './location'
+ import Map from '../parent/location'
 import Notification from './Notification'
 import AddDriver from './addDriver'
 class HomeScreen extends React.Component {
@@ -20,6 +20,7 @@ class HomeScreen extends React.Component {
 }
 
 class SettingsScreen extends React.Component {
+ 
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -38,7 +39,7 @@ class DetailsScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        {/* <Map /> */}
+        <Map />
       </View>
     );
   }
@@ -90,11 +91,11 @@ export default createAppContainer(createBottomTabNavigator(
         const { routeName } = navigation.state;
         let iconName;
         if (routeName === 'Home') {
-          iconName = `ios-information-circle`;
-        } else if (routeName === 'Driver') {
           iconName = `ios-options`;
+        } else if (routeName === 'Driver') {
+          iconName = `ios-information-circle`;
         }else if (routeName === 'Location') {
-            iconName = `ios-options`;
+            iconName = `ios-car`;
           }
 
         // You can return any component that you like here! We usually use an

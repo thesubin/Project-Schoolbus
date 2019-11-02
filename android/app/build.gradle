@@ -1,5 +1,5 @@
 apply plugin: "com.android.application"
-
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 import com.android.build.OutputFile
 
 /**
@@ -188,6 +188,10 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-restart')
+implementation 'com.facebook.fresco:fresco:2.0.0'
+implementation 'com.facebook.fresco:animated-gif:2.0.0'
+    implementation project(':@react-native-community_geolocation')
 //    implementation(project(':react-native-maps')){
 //         exclude group: 'com.google.android.gms', module: 'play-services-base'
 //         exclude group: 'com.google.android.gms', module: 'play-services-maps'
